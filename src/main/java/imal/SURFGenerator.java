@@ -104,4 +104,20 @@ public class SURFGenerator {
     public void setPoints(List<ScalePoint> points) {
         this.points = points;
     }
+
+    public void binarize() {
+        if (this.descriptions != null) {
+            for (BrightFeature desc : this.getDescriptions()) {
+                desc.setValue(SURFGenerator.binarizePoint(desc.getValue()));
+            }
+        }
+    }
+
+    public static double[] binarizePoint(double[] point) {
+        double[] binPoint = new double[point.length];
+        for (int i = 0; i < point.length; i++) {
+            binPoint[i] = point[i] > 0 ? 1 : 0;
+        }
+        return binPoint;
+    }
 }

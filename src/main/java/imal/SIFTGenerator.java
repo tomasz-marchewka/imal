@@ -1,0 +1,131 @@
+package imal;
+
+import boofcv.abst.feature.describe.ConfigSiftScaleSpace;
+import boofcv.abst.feature.detect.interest.ConfigSiftDetector;
+import boofcv.abst.filter.derivative.ImageGradient;
+import boofcv.alg.feature.describe.DescribePointSift;
+import boofcv.alg.feature.detect.interest.SiftDetector;
+import boofcv.alg.feature.orientation.OrientationHistogramSift;
+import boofcv.alg.filter.derivative.DerivativeType;
+import boofcv.factory.feature.detect.interest.FactoryInterestPointAlgs;
+import boofcv.factory.filter.derivative.FactoryDerivative;
+import boofcv.io.image.UtilImageIO;
+import boofcv.struct.feature.BrightFeature;
+import boofcv.struct.feature.ScalePoint;
+import boofcv.struct.feature.SurfFeatureQueue;
+import boofcv.struct.image.GrayF32;
+import georegression.struct.point.Point2D_F64;
+import org.ddogleg.struct.FastQueue;
+import org.ddogleg.struct.GrowQueue_F64;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SIFTGenerator {
+
+    private String imagePath;
+    private List<BrightFeature> descriptors;
+    private List<ScalePoint> points;
+
+    public SIFTGenerator(List<ScalePoint> points, String imagePath) {
+        this.imagePath = imagePath;
+        this.points = points;
+    }
+
+    public void generate() {
+        this.descriptors = new ArrayList<>();
+
+        GrayF32 image = UtilImageIO.loadImage(this.imagePath, GrayF32.class);
+        //SiftScaleSpace scaleSpace = new SiftScaleSpace(0, 3, 5, 1.6);
+
+        ConfigSiftScaleSpace configSiftScaleSpace = new ConfigSiftScaleSpace();
+        configSiftScaleSpace.sigma0 = 1.6f;
+        configSiftScaleSpace.numScales = 5;
+        configSiftScaleSpace.firstOctave = 0;
+        configSiftScaleSpace.lastOctave = 4;
+        ConfigSiftDetector configSiftDetector = new ConfigSiftDetector();
+        configSiftDetector.extract.radius = 2;
+        configSiftDetector.extract.threshold = 1.0f;
+        configSiftDetector.maxFeaturesPerScale = -1;
+        configSiftDetector.edgeR = 5.0d;
+        SiftDetector detector = FactoryInterestPointAlgs.sift(configSiftScaleSpace, configSiftDetector);
+
+        OrientationHistogramSift<GrayF32> orientation = new OrientationHistogramSift<GrayF32>(32, 2.5, GrayF32.class);
+        DescribePointSift describe = new DescribePointSift(4, 8, 8, 0.5, 2.5, 5.0, GrayF32.class);
+
+        SurfFeatureQueue features = new SurfFeatureQueue(describe.getDescriptorLength());
+        GrowQueue_F64 featureScales = new GrowQueue_F64(100);
+        GrowQueue_F64 featureAngles = new GrowQueue_F64(100);
+        FastQueue<Point2D_F64> location = new FastQueue<>(100, Point2D_F64.class, true);
+
+        features.reset();
+        featureScales.reset();
+        featureAngles.reset();
+        location.reset();
+
+        //scaleSpace.initialize(image);
+        //scaleSpace.constructPyramid(image);
+        //scaleSpace.computeFeatureIntensity();
+        //scaleSpace.computeDerivatives();
+
+        detector.process(image);
+        //orientation.setScaleSpace(scaleSpace);
+
+        ImageGradient imageGradient = FactoryDerivative.gradient(DerivativeType.THREE, image.imageType, image.imageType);
+        GrayF32 derivX = UtilImageIO.loadImage(this.imagePath, GrayF32.class);
+        GrayF32 derivY = UtilImageIO.loadImage(this.imagePath, GrayF32.class);
+        imageGradient.process(image, derivX, derivY);
+        orientation.setImageGradient(derivX, derivY);
+
+        //describe.setScaleSpace(scaleSpace);
+        describe.setImageGradient(derivX, derivY);
+
+        FastQueue<ScalePoint> found = detector.getDetections();
+
+        for(int i = 0; i < found.size; i++) {
+            ScalePoint scalePoint = found.data[i];
+            orientation.process(scalePoint.x, scalePoint.y, scalePoint.scale);
+
+            GrowQueue_F64 angles = orientation.getOrientations();
+            //int imageIndex = orientation.getImageIndex();
+            //double pixelScale = orientation.getPixelScale();
+
+            for(int j = 0; j < angles.size; j++) {
+                BrightFeature desc = features.grow();
+                double yaw = angles.data[j];
+                describe.process(scalePoint.x, scalePoint.y, scalePoint.scale, yaw, desc);
+                //desc.laplacianPositive = scalePoint.white;
+                featureScales.push(scalePoint.scale);
+                featureAngles.push(yaw);
+                location.grow().set(scalePoint.x, scalePoint.y);
+                this.descriptors.add(desc);
+            }
+            this.points.add(scalePoint);
+        }
+
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public List<BrightFeature> getDescriptors() {
+        return descriptors;
+    }
+
+    public void setDescriptors(List<BrightFeature> descriptors) {
+        this.descriptors = descriptors;
+    }
+
+    public List<ScalePoint> getPoints() {
+        return points;
+    }
+
+    public void setPoints(List<ScalePoint> points) {
+        this.points = points;
+    }
+}

@@ -12,20 +12,36 @@ public class Main {
 
         int surfPointsSize = surf.getPoints().size();
         System.out.println("Number of surf points: " + surfPointsSize);
-        for(int i = 0; i < surfPointsSize; i++) {
-            System.out.println("\n" + i +") " + surf.getPoints().get(i));
-            for(double value : surf.getDescriptions().get(i).value) {
+        for (int i = 0; i < surfPointsSize; i++) {
+            System.out.println("\n" + i + ") " + surf.getPoints().get(i));
+            for (double value : surf.getDescriptions().get(i).value) {
                 System.out.print(value + " ");
             }
         }
+        System.out.println();
+
         BRIEFGenerator brief = new BRIEFGenerator(surf.getPoints(), filePath);
         brief.generate();
 
         int briefPointsSize = brief.getPoints().size();
         System.out.println("Number of brief points: " + briefPointsSize);
-        for(int i = 0; i < briefPointsSize; i++) {
-            System.out.println("\n" + i +") " + brief.getPoints().get(i));
-            for(int value : brief.getDescriptors().get(i)) {
+        for (int i = 0; i < briefPointsSize; i++) {
+            System.out.println("\n" + i + ") " + brief.getPoints().get(i));
+            for (int value : brief.getDescriptors().get(i)) {
+                System.out.print(value + " ");
+            }
+        }
+        System.out.println();
+
+        SIFTGenerator sift = new SIFTGenerator(surf.getPoints(), filePath);
+        sift.generate();
+        //sift.binarize();
+
+        int siftPointsSize = sift.getPoints().size();
+        System.out.println("Number of sift points: " + siftPointsSize);
+        for (int i = 0; i < siftPointsSize; i++) {
+            System.out.println("\n" + i + ") " + sift.getPoints().get(i));
+            for (double value : sift.getDescriptors().get(i).value) {
                 System.out.print(value + " ");
             }
         }

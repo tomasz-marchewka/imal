@@ -27,12 +27,14 @@ public class SURFGenerator {
     private int numberOfPoints;
     private String imagePath;
 
-    private List<BrightFeature> descriptions;
+    private List<BrightFeature> descriptors;
     private List<ScalePoint> points;
+    public List<BinPoint> binPoints;
 
     public SURFGenerator(int numberOfPoints, String imagePath) {
         this.numberOfPoints = numberOfPoints;
         this.imagePath = imagePath;
+        this.binPoints = new ArrayList<>();
     }
 
     public <II extends ImageGray> void generate() {
@@ -57,7 +59,7 @@ public class SURFGenerator {
 
         List<ScalePoint> points = detector.getFoundPoints();
 
-        List<BrightFeature> descriptions = new ArrayList<>();
+        List<BrightFeature> descriptors = new ArrayList<>();
 
         for (ScalePoint point : points) {
             orientation.setObjectRadius(point.scale * BoofDefaults.SURF_SCALE_TO_RADIUS);
@@ -66,10 +68,10 @@ public class SURFGenerator {
             BrightFeature desc = descriptor.createDescription();
             descriptor.describe(point.x, point.y, angle, point.scale, desc);
 
-            descriptions.add(desc);
+            descriptors.add(desc);
         }
 
-        this.descriptions = descriptions;
+        this.descriptors = descriptors;
         this.points = points;
     }
 
@@ -89,12 +91,12 @@ public class SURFGenerator {
         this.numberOfPoints = numberOfPoints;
     }
 
-    public List<BrightFeature> getDescriptions() {
-        return descriptions;
+    public List<BrightFeature> getDescriptors() {
+        return descriptors;
     }
 
-    public void setDescriptions(List<BrightFeature> descriptions) {
-        this.descriptions = descriptions;
+    public void setDescriptors(List<BrightFeature> descriptors) {
+        this.descriptors = descriptors;
     }
 
     public List<ScalePoint> getPoints() {
@@ -106,17 +108,17 @@ public class SURFGenerator {
     }
 
     public void binarize() {
-        if (this.descriptions != null) {
-            for (BrightFeature desc : this.getDescriptions()) {
-                desc.setValue(SURFGenerator.binarizePoint(desc.getValue()));
+        if (this.descriptors != null && this.points != null && this.descriptors.size() == this.points.size()) {
+            for(int i = 0; i < this.points.size(); i++) {
+                this.binPoints.add(new BinPoint(this.points.get(i), SURFGenerator.binarizePoint(this.descriptors.get(i).getValue())));
             }
         }
     }
 
-    public static double[] binarizePoint(double[] point) {
-        double[] binPoint = new double[point.length];
+    public static List<Integer> binarizePoint(double[] point) {
+        List<Integer> binPoint = new ArrayList<>(point.length);
         for (int i = 0; i < point.length; i++) {
-            binPoint[i] = point[i] > 0 ? 1 : 0;
+            binPoint.add(i, point[i] > 0 ? 1 : 0);
         }
         return binPoint;
     }

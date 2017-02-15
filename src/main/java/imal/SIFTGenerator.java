@@ -19,6 +19,7 @@ import org.ddogleg.struct.FastQueue;
 import org.ddogleg.struct.GrowQueue_F64;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SIFTGenerator {
@@ -27,9 +28,9 @@ public class SIFTGenerator {
     private List<BrightFeature> descriptors;
     private List<ScalePoint> points;
 
-    public SIFTGenerator(List<ScalePoint> points, String imagePath) {
+    public SIFTGenerator(String imagePath) {
         this.imagePath = imagePath;
-        this.points = points;
+        this.points = new ArrayList<>();
     }
 
     public void generate() {
@@ -82,7 +83,7 @@ public class SIFTGenerator {
 
         FastQueue<ScalePoint> found = detector.getDetections();
 
-        for(int i = 0; i < found.size; i++) {
+        for (int i = 0; i < found.size; i++) {
             ScalePoint scalePoint = found.data[i];
             orientation.process(scalePoint.x, scalePoint.y, scalePoint.scale);
 
@@ -90,7 +91,7 @@ public class SIFTGenerator {
             //int imageIndex = orientation.getImageIndex();
             //double pixelScale = orientation.getPixelScale();
 
-            for(int j = 0; j < angles.size; j++) {
+            for (int j = 0; j < angles.size; j++) {
                 BrightFeature desc = features.grow();
                 double yaw = angles.data[j];
                 describe.process(scalePoint.x, scalePoint.y, scalePoint.scale, yaw, desc);
@@ -127,5 +128,36 @@ public class SIFTGenerator {
 
     public void setPoints(List<ScalePoint> points) {
         this.points = points;
+    }
+
+    public void binarize() {
+        if (this.descriptors != null) {
+            int size = this.getDescriptors().size() * this.getDescriptors().get(0).getValue().length;
+            double[] array = new double[size];
+
+            int i = 0;
+            for (BrightFeature desc : this.getDescriptors()) {
+                for (double value : desc.getValue()) {
+                    array[i++] = value;
+                }
+            }
+
+            Arrays.sort(array);
+
+            int middleIndex = (size % 2 == 0) ? (size+1) /2 : size /2;
+            double middle = array[middleIndex];
+
+            for (BrightFeature desc : this.getDescriptors()) {
+                desc.setValue(SIFTGenerator.binarizePoint(desc.getValue(), middle));
+            }
+        }
+    }
+
+    public static double[] binarizePoint(double[] point, double middle) {
+        double[] binPoint = new double[point.length];
+        for (int i = 0; i < point.length; i++) {
+            binPoint[i] = point[i] > middle ? 1 : 0;
+        }
+        return binPoint;
     }
 }

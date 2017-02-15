@@ -14,7 +14,7 @@ public class Main {
         System.out.println("Number of surf points: " + surfPointsSize);
         for (int i = 0; i < surfPointsSize; i++) {
             System.out.println("\n" + i + ") " + surf.getPoints().get(i));
-            for (double value : surf.getDescriptions().get(i).value) {
+            for (double value : surf.getDescriptors().get(i).value) {
                 System.out.print(value + " ");
             }
         }
@@ -22,6 +22,7 @@ public class Main {
 
         BRIEFGenerator brief = new BRIEFGenerator(surf.getPoints(), filePath);
         brief.generate();
+        brief.binarize();
 
         int briefPointsSize = brief.getPoints().size();
         System.out.println("Number of brief points: " + briefPointsSize);
@@ -33,9 +34,9 @@ public class Main {
         }
         System.out.println();
 
-        SIFTGenerator sift = new SIFTGenerator(surf.getPoints(), filePath);
+        SIFTGenerator sift = new SIFTGenerator(filePath);
         sift.generate();
-        //sift.binarize();
+        sift.binarize();
 
         int siftPointsSize = sift.getPoints().size();
         System.out.println("Number of sift points: " + siftPointsSize);

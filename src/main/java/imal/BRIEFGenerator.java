@@ -26,10 +26,12 @@ public class BRIEFGenerator {
     private String imagePath;
     private List<List<Integer>> descriptors;
     private List<ScalePoint> points;
+    public List<BinPoint> binPoints;
 
     public BRIEFGenerator(List<ScalePoint> points, String imagePath) {
         this.imagePath = imagePath;
         this.points = points;
+        this.binPoints = new ArrayList<>();
     }
 
     public void generate() {
@@ -52,18 +54,18 @@ public class BRIEFGenerator {
         TupleDesc_B f = brief.createFeature();
 
 
-        for (ScalePoint moj : this.points) {
+        for (ScalePoint point : this.points) {
 
-            brief.process(moj.x, moj.y, f);
+            brief.process(point.x, point.y, f);
 
-            int[] deskryptor = new int[520];
+            int[] descriptor = new int[520];
 
             for (int i = 0; i < f.numBits; i++) {
                 if (f.isBitTrue(i)) {
-                    deskryptor[i] = 1;
+                    descriptor[i] = 1;
                 }
             }
-            this.descriptors.add(Ints.asList(deskryptor));
+            this.descriptors.add(Ints.asList(descriptor));
         }
     }
 
@@ -86,4 +88,13 @@ public class BRIEFGenerator {
     public void setPoints(List<ScalePoint> points) {
         this.points = points;
     }
+
+    public void binarize() {
+        if (this.descriptors != null && this.points != null && this.descriptors.size() == this.points.size()) {
+            for(int i = 0; i < this.points.size(); i++) {
+                this.binPoints.add(new BinPoint(this.points.get(i), this.descriptors.get(i)));
+            }
+        }
+    }
+
 }

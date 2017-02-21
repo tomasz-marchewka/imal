@@ -27,10 +27,12 @@ public class SIFTGenerator {
     private String imagePath;
     private List<BrightFeature> descriptors;
     private List<ScalePoint> points;
+    public List<BinPoint> binPoints;
 
     public SIFTGenerator(String imagePath) {
         this.imagePath = imagePath;
         this.points = new ArrayList<>();
+        this.binPoints = new ArrayList<>();
     }
 
     public void generate() {
@@ -131,32 +133,36 @@ public class SIFTGenerator {
     }
 
     public void binarize() {
-        if (this.descriptors != null) {
-            int size = this.getDescriptors().size() * this.getDescriptors().get(0).getValue().length;
-            double[] array = new double[size];
+        if (this.descriptors != null && this.points != null && this.descriptors.size() >= this.points.size()) {
+            double middle = getMiddle();
 
-            int i = 0;
-            for (BrightFeature desc : this.getDescriptors()) {
-                for (double value : desc.getValue()) {
-                    array[i++] = value;
-                }
-            }
-
-            Arrays.sort(array);
-
-            int middleIndex = (size % 2 == 0) ? (size+1) /2 : size /2;
-            double middle = array[middleIndex];
-
-            for (BrightFeature desc : this.getDescriptors()) {
-                desc.setValue(SIFTGenerator.binarizePoint(desc.getValue(), middle));
+            for(int i = 0; i < this.points.size(); i++) {
+                this.binPoints.add(new BinPoint(this.points.get(i), SIFTGenerator.binarizePoint(this.descriptors.get(i).getValue(), middle)));
             }
         }
     }
 
-    public static double[] binarizePoint(double[] point, double middle) {
-        double[] binPoint = new double[point.length];
+    private double getMiddle() {
+        int size = this.getDescriptors().size() * this.getDescriptors().get(0).getValue().length;
+        double[] array = new double[size];
+
+        int i = 0;
+        for (BrightFeature desc : this.getDescriptors()) {
+            for (double value : desc.getValue()) {
+                array[i++] = value;
+            }
+        }
+
+        Arrays.sort(array);
+
+        int middleIndex = (size % 2 == 0) ? (size+1) /2 : size /2;
+        return array[middleIndex];
+    }
+
+    public static List<Integer> binarizePoint(double[] point, double middle) {
+        List<Integer> binPoint = new ArrayList<>(point.length);
         for (int i = 0; i < point.length; i++) {
-            binPoint[i] = point[i] > middle ? 1 : 0;
+            binPoint.add(i, point[i] > middle ? 1 : 0);
         }
         return binPoint;
     }

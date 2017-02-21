@@ -42,4 +42,9 @@ public class BinPoint {
         }
         return "(x: " + point.x + ", y: " + point.y + ") - desc(" + this.descriptors.size() + ")= "+ descriptorsString;
     }
+
+    static void printList(String method, List<BinPoint> points) {
+        System.out.println("Number of " + method + " points: " + points.size());
+        points.forEach(point -> System.out.println(point));
+    }
 }

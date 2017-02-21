@@ -29,7 +29,7 @@ public class RandomMethod {
         // Note: use LinkedHashSet to maintain insertion order
         Set<Integer> generated = new LinkedHashSet<Integer>();
         while (generated.size() < indexesCount) {
-            Integer next = rng.nextInt(maxIndex) + 1;
+            Integer next = rng.nextInt(maxIndex);
             // As we're adding to a set, this will automatically do a containment check
             generated.add(next);
         }

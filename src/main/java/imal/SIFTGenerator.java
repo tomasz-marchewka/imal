@@ -5,6 +5,7 @@ import boofcv.abst.feature.detect.interest.ConfigSiftDetector;
 import boofcv.abst.filter.derivative.ImageGradient;
 import boofcv.alg.feature.describe.DescribePointSift;
 import boofcv.alg.feature.detect.interest.SiftDetector;
+import boofcv.alg.feature.detect.interest.SiftScaleSpace;
 import boofcv.alg.feature.orientation.OrientationHistogramSift;
 import boofcv.alg.filter.derivative.DerivativeType;
 import boofcv.factory.feature.detect.interest.FactoryInterestPointAlgs;
@@ -44,17 +45,18 @@ public class SIFTGenerator {
         ConfigSiftScaleSpace configSiftScaleSpace = new ConfigSiftScaleSpace();
         configSiftScaleSpace.sigma0 = 1.6f;
         configSiftScaleSpace.numScales = 5;
-        configSiftScaleSpace.firstOctave = 0;
-        configSiftScaleSpace.lastOctave = 4;
+        configSiftScaleSpace.firstOctave = 1;
+        configSiftScaleSpace.lastOctave = 5;
         ConfigSiftDetector configSiftDetector = new ConfigSiftDetector();
         configSiftDetector.extract.radius = 2;
         configSiftDetector.extract.threshold = 1.0f;
+        configSiftDetector.extract.ignoreBorder = 1;
         configSiftDetector.maxFeaturesPerScale = -1;
         configSiftDetector.edgeR = 5.0d;
         SiftDetector detector = FactoryInterestPointAlgs.sift(configSiftScaleSpace, configSiftDetector);
 
-        OrientationHistogramSift<GrayF32> orientation = new OrientationHistogramSift<GrayF32>(32, 2.5, GrayF32.class);
-        DescribePointSift describe = new DescribePointSift(4, 8, 8, 0.5, 2.5, 5.0, GrayF32.class);
+        OrientationHistogramSift<GrayF32> orientation = new OrientationHistogramSift<GrayF32>(32, 1.5, GrayF32.class);
+        DescribePointSift describe = new DescribePointSift(8, 4, 8, 2.5, 0.5, 0.2D, GrayF32.class);
 
         SurfFeatureQueue features = new SurfFeatureQueue(describe.getDescriptorLength());
         GrowQueue_F64 featureScales = new GrowQueue_F64(100);
@@ -98,6 +100,7 @@ public class SIFTGenerator {
                 double yaw = angles.data[j];
                 describe.process(scalePoint.x, scalePoint.y, scalePoint.scale, yaw, desc);
                 //desc.laplacianPositive = scalePoint.white;
+                desc.white = scalePoint.white;
                 featureScales.push(scalePoint.scale);
                 featureAngles.push(yaw);
                 location.grow().set(scalePoint.x, scalePoint.y);

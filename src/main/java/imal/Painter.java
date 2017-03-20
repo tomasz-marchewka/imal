@@ -3,50 +3,99 @@ package imal;
 import boofcv.gui.feature.FancyInterestPointRender;
 import boofcv.gui.image.ShowImages;
 import boofcv.io.image.UtilImageIO;
-import boofcv.struct.feature.ScalePoint;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by tomas on 2017-03-08.
  */
 public class Painter {
-    public static void drawImages(String imagePath1, String imagePath2, List<ScalePoint> points1, List<ScalePoint> points2) {
-        BufferedImage image1 = UtilImageIO.loadImage(imagePath1);
-        BufferedImage image2 = UtilImageIO.loadImage(imagePath2);
+    private BufferedImage image1;
+    private BufferedImage image2;
 
-        int border = 10;
+    private static int offsetX = 10;
+    private static int offsetY = 0;
+    private static int strokeSize = 2;
+    private static int circleRadius = 5;
 
-        BufferedImage screen = new BufferedImage(image1.getWidth() + border + image2.getWidth(), image1.getHeight(), BufferedImage.TYPE_INT_ARGB);
+    private Graphics2D graphics;
+    private BufferedImage screen;
+    private FancyInterestPointRender render;
 
-        Graphics2D graphics = screen.createGraphics();
+    private Random rand;
 
-        graphics.drawImage(image1, 0, 0, null);
-        graphics.drawImage(image2, image1.getWidth() + border, 0, null);
+    public Painter(String imagePath1, String imagePath2) {
+        this.image1 = UtilImageIO.loadImage(imagePath1);
+        this.image2 = UtilImageIO.loadImage(imagePath2);
 
-        FancyInterestPointRender render = new FancyInterestPointRender();
+        this.screen = new BufferedImage(this.image1.getWidth() + this.offsetX + this.image2.getWidth(),
+                this.image1.getHeight() + this.offsetY, BufferedImage.TYPE_INT_ARGB);
 
-        drawPoints(render, points1, 0);
-        drawPoints(render, points2, image1.getWidth() + border);
+        this.graphics = screen.createGraphics();
+        this.graphics.setStroke(new BasicStroke(this.strokeSize));
 
-        graphics.setStroke(new BasicStroke(1));
+        this.graphics.drawImage(this.image1, 0, 0, null);
+        this.graphics.drawImage(this.image2, this.image1.getWidth() + this.offsetX, this.offsetY, null);
 
-        render.draw(graphics);
+        this.render = new FancyInterestPointRender();
 
-        ShowImages.showWindow(screen, "Image comparision", true);
+        this.rand = new Random();
     }
 
-    public static void drawPoints(FancyInterestPointRender render, List<ScalePoint> points, int offsetX) {
-        Random rand = new Random();
-        for (ScalePoint point : points) {
-            float r = rand.nextFloat();
-            float g = rand.nextFloat();
-            float b = rand.nextFloat();
-            Color randomColor = new Color(r, g, b);
-            render.addCircle((int) point.x + offsetX, (int) point.y, 5, randomColor);
+
+    public void paint(Map<BinPoint, BinPoint> points, List<BinPoint> notAssociatedPoints) {
+        this.drawPoints(notAssociatedPoints);
+        this.drawPoints(points);
+
+        this.render.draw(this.graphics);
+        ShowImages.showWindow(this.screen, "Image comparision", true);
+    }
+
+    private void drawPoints(Map<BinPoint, BinPoint> points) {
+        for (BinPoint point : points.keySet()) {
+            drawPoint(point, points.get(point), 0);
         }
     }
+
+    private void drawPoints(List<BinPoint> points) {
+        for (BinPoint point : points) {
+            drawPoint(point, null, this.image1.getWidth() + this.offsetX);
+        }
+    }
+
+    private void drawPoint(BinPoint point, BinPoint associatedPoint, int offsetX) {
+        Color randomColor = getRandomColor();
+
+        int x1 = (int) point.point.x + offsetX;
+        int y1 = (int) point.point.y;
+
+        render.addCircle(x1, y1, circleRadius, randomColor);
+
+        if (associatedPoint != null) {
+
+            int x2 = (int) associatedPoint.point.x + this.offsetX + this.image1.getWidth();
+            int y2 = (int) associatedPoint.point.y + this.offsetY;
+            render.addCircle(x2, y2, circleRadius, randomColor);
+            graphics.setColor(randomColor);
+            graphics.drawLine(x1, y1, x2, y2);
+        }
+    }
+
+    private Color getRandomColor() {
+        if (this.rand == null) {
+            this.rand = new Random();
+        }
+        float r = rand.nextFloat();
+        float g = rand.nextFloat();
+        float b = rand.nextFloat();
+        return new Color(r, g, b);
+    }
+
+//    public static List<BinPoint> getNotAssociatedPoints(Map<BinPoint, BinPoint> pointsWithAssociation, List<BinPoint> points) {
+//        Set<BinPoint> = new HashSet<>();
+//        points.
+//    }
 }

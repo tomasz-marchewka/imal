@@ -5,6 +5,7 @@ import boofcv.struct.feature.ScalePoint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by tomas on 2017-02-04.
@@ -21,12 +22,12 @@ public class BinPoint {
 
     public BinPoint getGivenIndexes(Set<Integer> indexes) throws IllegalArgumentException {
         int descSize = this.descriptors.size();
-        if(indexes.size() >= descSize) {
+        if (indexes.size() > descSize) {
             throw new IllegalArgumentException("Indexes size: " + indexes.size() + " can't be bigger than descriptors size: " + descSize);
         }
         List<Integer> newDescripotrs = new ArrayList<>();
         for (int index : indexes) {
-            if(index >= descSize ) {
+            if (index >= descSize) {
                 throw new IllegalArgumentException("Given index: " + index + " is bigger than descriptors size: " + descSize);
             }
             newDescripotrs.add(this.descriptors.get(index));
@@ -37,10 +38,14 @@ public class BinPoint {
     @Override
     public String toString() {
         StringBuilder descriptorsString = new StringBuilder();
-        for (Integer desc: this.descriptors) {
+        for (Integer desc : this.descriptors) {
             descriptorsString.append(desc.toString() + ", ");
         }
-        return "(x: " + point.x + ", y: " + point.y + ") - desc(" + this.descriptors.size() + ")= "+ descriptorsString;
+        return "(x: " + point.x + ", y: " + point.y + ") - desc(" + this.descriptors.size() + ")= " + descriptorsString;
+    }
+
+    static List<BinPoint> applyIndexes(Set<Integer> indexes, List<BinPoint> points) {
+        return points.stream().map(point -> point.getGivenIndexes(indexes)).collect(Collectors.toList());
     }
 
     static void printList(String method, List<BinPoint> points) {

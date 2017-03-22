@@ -24,22 +24,19 @@ public class Associate {
             int hammingBest2 = Integer.MAX_VALUE;
             BinPoint bestPoint = null;
             for (BinPoint point2 : points2) {
-                if (this.isInEpsilon(point1, point2)) {
-                    numberOfAllAssociate++;
-                    int currentHamming = this.countHamming(point1, point2);
-                    if (currentHamming < hammingBest1) {
-                        // if (this.isInEpsilon(point1, point2)) {
-                        bestPoint = point2;
-
-                        //  }
-                        hammingBest2 = hammingBest1;
-                        hammingBest1 = currentHamming;
-                    }
+                int currentHamming = this.countHamming(point1, point2);
+                if (currentHamming < hammingBest1) {
+                    bestPoint = point2;
+                    hammingBest2 = hammingBest1;
+                    hammingBest1 = currentHamming;
                 }
             }
             if (bestPoint != null && hammingBest2 != 0 && (double) hammingBest1 / hammingBest2 <= HAMMING_RATIO) {
-                result.put(point1, bestPoint);
-                numberOfAssociate++;
+                if (this.isInEpsilon(point1, bestPoint)) {
+                    result.put(point1, bestPoint);
+                    numberOfAssociate++;
+                }
+                numberOfAllAssociate++;
             } else {
                 result.put(point1, null);
             }
@@ -48,6 +45,12 @@ public class Associate {
         this.precision = (double) numberOfAssociate / numberOfAllAssociate;
         this.f1 = 2 * (this.precision * this.recall) / (this.precision + this.recall);
         return result;
+    }
+
+    public void printResult() {
+        System.out.println("precision: " + this.precision);
+        System.out.println("recall: " + this.recall);
+        System.out.println("f1: " + this.f1);
     }
 
     private boolean isInEpsilon(BinPoint point1, BinPoint point2) {

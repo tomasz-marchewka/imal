@@ -3,6 +3,7 @@ package imal;
 import boofcv.gui.feature.FancyInterestPointRender;
 import boofcv.gui.image.ShowImages;
 import boofcv.io.image.UtilImageIO;
+import boofcv.struct.BoofDefaults;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -18,8 +19,7 @@ public class Painter {
 
     private static int offsetX = 10;
     private static int offsetY = 0;
-    private static int strokeSize = 2;
-    private static int circleRadius = 5;
+    private static int strokeSize = 1;
 
     private Graphics2D graphics;
     private BufferedImage screen;
@@ -72,13 +72,13 @@ public class Painter {
         int x1 = (int) point.point.x + offsetX;
         int y1 = (int) point.point.y;
 
-        render.addCircle(x1, y1, circleRadius, randomColor);
+        render.addCircle(x1, y1, (int) (point.point.scale * BoofDefaults.BRIEF_SCALE_TO_RADIUS), randomColor);
 
         if (associatedPoint != null) {
 
             int x2 = (int) associatedPoint.point.x + this.offsetX + this.image1.getWidth();
             int y2 = (int) associatedPoint.point.y + this.offsetY;
-            render.addCircle(x2, y2, circleRadius, randomColor);
+            render.addCircle(x2, y2, (int) (associatedPoint.point.scale * BoofDefaults.BRIEF_SCALE_TO_RADIUS), randomColor);
             graphics.setColor(randomColor);
             graphics.drawLine(x1, y1, x2, y2);
         }
@@ -93,9 +93,4 @@ public class Painter {
         float b = rand.nextFloat();
         return new Color(r, g, b);
     }
-
-//    public static List<BinPoint> getNotAssociatedPoints(Map<BinPoint, BinPoint> pointsWithAssociation, List<BinPoint> points) {
-//        Set<BinPoint> = new HashSet<>();
-//        points.
-//    }
 }

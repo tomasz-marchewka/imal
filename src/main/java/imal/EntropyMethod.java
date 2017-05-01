@@ -16,7 +16,7 @@ public class EntropyMethod {
         return EntropyMethod.countEntropy(points, emptySet);
     }
 
-    static double countEntropy(List<BinPoint> points, Set<Integer> excludedIndexes) {
+    static double countEntropy(List<BinPoint> points, Set<Integer> excludedIndices) {
         double probability1 = 0;
         double probability0 = 0;
 
@@ -27,7 +27,7 @@ public class EntropyMethod {
 
         for (BinPoint point : points) {
             for (int i = 0; i < point.descriptors.size(); i++) {
-                if(!excludedIndexes.contains(i)) {
+                if(!excludedIndices.contains(i)) {
                     if (point.descriptors.get(i) == 0) {
                         count0++;
                     } else {
@@ -45,17 +45,17 @@ public class EntropyMethod {
         return -(probability0 * log2(probability0) + probability1 * log2(probability1));
     }
 
-    public static Set<Integer> getDescriptors(List<BinPoint> points, int numbersOfIndexes) {
-        Set<Integer> excludedIndexes = new HashSet<>();
+    public static Set<Integer> getDescriptors(List<BinPoint> points, int numbersOfIndices) {
+        Set<Integer> excludedIndices = new HashSet<>();
 
-        for (int i = 0; i < numbersOfIndexes; i++) {
+        for (int i = 0; i < numbersOfIndices; i++) {
 
             double lowestEntropy = 1;
             int lowestEntropyIndex = 0;
 
             int descSize = points.get(0).descriptors.size();
             for (int j = 0; j < descSize; j++) {
-                Set<Integer> internalExcluded = new HashSet<>(excludedIndexes);
+                Set<Integer> internalExcluded = new HashSet<>(excludedIndices);
                 internalExcluded.add(j);
 
                 double currentEntropy = countEntropy(points, internalExcluded);
@@ -64,15 +64,15 @@ public class EntropyMethod {
                     lowestEntropyIndex = j;
                 }
             }
-            excludedIndexes.add(lowestEntropyIndex);
+            excludedIndices.add(lowestEntropyIndex);
         }
-        return getIndexesWithout(excludedIndexes, points.get(0).descriptors.size());
+        return getIndicesWithout(excludedIndices, points.get(0).descriptors.size());
     }
 
-    private static Set<Integer> getIndexesWithout(Set<Integer> excludedIndexes, int maxIndex) {
+    private static Set<Integer> getIndicesWithout(Set<Integer> excludedIndices, int maxIndex) {
         Set<Integer> result = new HashSet<>();
         for (int i = 0; i < maxIndex; i++) {
-            if(!excludedIndexes.contains(i)) {
+            if(!excludedIndices.contains(i)) {
                 result.add(i);
             }
         }

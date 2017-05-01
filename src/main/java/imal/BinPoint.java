@@ -20,13 +20,13 @@ public class BinPoint {
         this.descriptors = desc;
     }
 
-    public BinPoint getGivenIndexes(Set<Integer> indexes) throws IllegalArgumentException {
+    public BinPoint getGivenIndices(Set<Integer> indices) throws IllegalArgumentException {
         int descSize = this.descriptors.size();
-        if (indexes.size() > descSize) {
-            throw new IllegalArgumentException("Indexes size: " + indexes.size() + " can't be bigger than descriptors size: " + descSize);
+        if (indices.size() > descSize) {
+            throw new IllegalArgumentException("Indices size: " + indices.size() + " can't be bigger than descriptors size: " + descSize);
         }
         List<Integer> newDescripotrs = new ArrayList<>();
-        for (int index : indexes) {
+        for (int index : indices) {
             if (index >= descSize) {
                 throw new IllegalArgumentException("Given index: " + index + " is bigger than descriptors size: " + descSize);
             }
@@ -44,8 +44,8 @@ public class BinPoint {
         return "(x: " + point.x + ", y: " + point.y + ") - desc(" + this.descriptors.size() + ")= " + descriptorsString;
     }
 
-    static List<BinPoint> applyIndexes(Set<Integer> indexes, List<BinPoint> points) {
-        return points.stream().map(point -> point.getGivenIndexes(indexes)).collect(Collectors.toList());
+    static List<BinPoint> applyIndices(Set<Integer> indices, List<BinPoint> points) {
+        return points.stream().map(point -> point.getGivenIndices(indices)).collect(Collectors.toList());
     }
 
     static void printList(String method, List<BinPoint> points) {

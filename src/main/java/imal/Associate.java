@@ -43,7 +43,11 @@ public class Associate {
         }
         this.recall = (double) numberOfAssociate / points1.size();
         this.precision = (double) numberOfAssociate / numberOfAllAssociate;
-        this.f1 = 2 * (this.precision * this.recall) / (this.precision + this.recall);
+        if (this.precision + this.recall != 0.0) {
+            this.f1 = 2 * (this.precision * this.recall) / (this.precision + this.recall);
+        } else {
+            this.f1 = 0.0;
+        }
         return result;
     }
 

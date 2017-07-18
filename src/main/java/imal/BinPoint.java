@@ -2,9 +2,7 @@ package imal;
 
 import boofcv.struct.feature.ScalePoint;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -13,24 +11,23 @@ import java.util.stream.Collectors;
 
 public class BinPoint {
     public ScalePoint point;
-    public List<Integer> descriptors;
+    public int[] descriptors;
 
-    BinPoint(ScalePoint point, List<Integer> desc) {
+    BinPoint(ScalePoint point, int[] desc) {
         this.point = point;
         this.descriptors = desc;
     }
 
-    public BinPoint getGivenIndices(Set<Integer> indices) throws IllegalArgumentException {
-        int descSize = this.descriptors.size();
-        if (indices.size() > descSize) {
-            throw new IllegalArgumentException("Indices size: " + indices.size() + " can't be bigger than descriptors size: " + descSize);
+    public BinPoint getGivenIndices(int[] indices) {
+        int descSize = this.descriptors.length;
+        int indicesSize = indices.length;
+        if (indicesSize > descSize) {
+            throw new IllegalArgumentException("Indices size: " + indicesSize + " can't be bigger than descriptors size: " + descSize);
         }
-        List<Integer> newDescripotrs = new ArrayList<>();
-        for (int index : indices) {
-            if (index >= descSize) {
-                throw new IllegalArgumentException("Given index: " + index + " is bigger than descriptors size: " + descSize);
-            }
-            newDescripotrs.add(this.descriptors.get(index));
+
+        int[] newDescripotrs = new int[indicesSize];
+        for (int i = 0; i < indicesSize; i++) {
+            newDescripotrs[i] = this.descriptors[indices[i]];
         }
         return new BinPoint(this.point, newDescripotrs);
     }
@@ -41,11 +38,16 @@ public class BinPoint {
         for (Integer desc : this.descriptors) {
             descriptorsString.append(desc.toString() + ", ");
         }
-        return "(x: " + point.x + ", y: " + point.y + ") - desc(" + this.descriptors.size() + ")= " + descriptorsString;
+        return "(x: " + point.x + ", y: " + point.y + ") - desc(" + this.descriptors.length + ")= " + descriptorsString;
     }
 
-    static List<BinPoint> applyIndices(Set<Integer> indices, List<BinPoint> points) {
-        return points.stream().map(point -> point.getGivenIndices(indices)).collect(Collectors.toList());
+    static List<BinPoint> applyIndices(int[] indices, List<BinPoint> points) {
+        List<BinPoint> result = new ArrayList<>(indices.length);
+        for (BinPoint point : points) {
+            result.add(point.getGivenIndices(indices));
+        }
+        return result;
+        //return points.stream().map(point -> point.getGivenIndices(indices)).collect(Collectors.toList());
     }
 
     static void printList(String method, List<BinPoint> points) {

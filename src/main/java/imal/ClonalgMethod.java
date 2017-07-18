@@ -23,7 +23,6 @@ public class ClonalgMethod {
 
     ClonalgMethod(int antibodySize, int antibodyValueSize, CalcAffinity calcAffinity) {
         this.population = new Antibody[populationSize];
-        //this.bestPopulation = new Antibody[bestSize];
         this.bestClones = new Antibody[clonesSize];
 
         this.antibodySize = antibodySize;
@@ -93,18 +92,21 @@ public class ClonalgMethod {
 }
 
 interface CalcAffinity {
-    double calcAffinity(Set<Integer> indices);
+    double calcAffinity(int[] indices);
 }
 
 class Antibody {
     static Random randomGenerator = new Random();
     boolean[] values;
+    int valueSize;
     double fittnes = 0.0;
 
     Antibody(int valueSize, int antibodySize) {
         if (antibodySize < valueSize) {
             throw new IllegalArgumentException("Value size must be lower than antibody size.");
         }
+
+        this.valueSize = valueSize;
 
         Set<Integer> generated = new LinkedHashSet<>();
         while (generated.size() < valueSize) {
@@ -120,6 +122,7 @@ class Antibody {
 
     Antibody(Antibody pattern) {
         this.values = new boolean[pattern.values.length];
+        this.valueSize = pattern.valueSize;
         System.arraycopy(pattern.values, 0, this.values, 0, pattern.values.length);
         this.fittnes = pattern.fittnes;
     }
@@ -135,14 +138,14 @@ class Antibody {
         }
     }
 
-    public Set<Integer> getIndices() {
-        Set<Integer> indices = new HashSet<>();
+    public int[] getIndices() {
+        int[] indices = new int[this.valueSize];
+        int j = 0;
         for (int i = 0; i < this.values.length; i++) {
             if (this.values[i]) {
-                indices.add(i);
+                indices[j++] = i;
             }
         }
-
         return indices;
     }
 

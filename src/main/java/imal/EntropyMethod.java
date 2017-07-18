@@ -26,9 +26,9 @@ public class EntropyMethod {
         int count1 = 0;
 
         for (BinPoint point : points) {
-            for (int i = 0; i < point.descriptors.size(); i++) {
+            for (int i = 0; i < point.descriptors.length; i++) {
                 if(!excludedIndices.contains(i)) {
-                    if (point.descriptors.get(i) == 0) {
+                    if (point.descriptors[i] == 0) {
                         count0++;
                     } else {
                         count1++;
@@ -53,7 +53,7 @@ public class EntropyMethod {
             double lowestEntropy = 1;
             int lowestEntropyIndex = 0;
 
-            int descSize = points.get(0).descriptors.size();
+            int descSize = points.get(0).descriptors.length;
             for (int j = 0; j < descSize; j++) {
                 Set<Integer> internalExcluded = new HashSet<>(excludedIndices);
                 internalExcluded.add(j);
@@ -66,7 +66,7 @@ public class EntropyMethod {
             }
             excludedIndices.add(lowestEntropyIndex);
         }
-        return getIndicesWithout(excludedIndices, points.get(0).descriptors.size());
+        return getIndicesWithout(excludedIndices, points.get(0).descriptors.length);
     }
 
     private static Set<Integer> getIndicesWithout(Set<Integer> excludedIndices, int maxIndex) {

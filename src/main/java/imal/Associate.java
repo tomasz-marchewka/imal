@@ -16,7 +16,7 @@ public class Associate {
     public double f1;
 
     public Map<BinPoint, BinPoint> findAssociate(List<BinPoint> points1, List<BinPoint> points2) {
-        Map<BinPoint, BinPoint> result = new HashMap<>();
+        //Map<BinPoint, BinPoint> result = new HashMap<>();
         int numberOfAssociate = 0;
         int numberOfAllAssociate = 0;
         for (BinPoint point1 : points1) {
@@ -33,12 +33,12 @@ public class Associate {
             }
             if (bestPoint != null && hammingBest2 != 0 && (double) hammingBest1 / hammingBest2 <= HAMMING_RATIO) {
                 if (this.isInEpsilon(point1, bestPoint)) {
-                    result.put(point1, bestPoint);
+                    //result.put(point1, bestPoint);
                     numberOfAssociate++;
                 }
                 numberOfAllAssociate++;
             } else {
-                result.put(point1, null);
+                //result.put(point1, null);
             }
         }
         this.recall = (double) numberOfAssociate / points1.size();
@@ -48,7 +48,8 @@ public class Associate {
         } else {
             this.f1 = 0.0;
         }
-        return result;
+        //return result;
+        return null;
     }
 
     public void printResult() {
@@ -70,13 +71,14 @@ public class Associate {
         return (distance < EPSILON);
     }
 
-    private int countHamming(BinPoint point1, BinPoint point2) throws IllegalArgumentException {
-        if (point1.descriptors.size() != point2.descriptors.size()) {
-            throw new IllegalArgumentException("Point1 size: " + point1.descriptors.size() + " is not equal to point2 size: " + point2.descriptors.size());
-        }
+    private int countHamming(BinPoint point1, BinPoint point2) {
+//        if (point1.descriptors.size() != point2.descriptors.size()) {
+//            throw new IllegalArgumentException("Point1 size: " + point1.descriptors.size() + " is not equal to point2 size: " + point2.descriptors.size());
+//        }
         int hamming = 0;
-        for (int i = 0; i < point1.descriptors.size(); i++) {
-            hamming += point1.descriptors.get(i) ^ point2.descriptors.get(i);
+        int size = point1.descriptors.length;
+        for (int i = 0; i < size; i++) {
+            hamming += point1.descriptors[i] ^ point2.descriptors[i];
         }
         return hamming;
     }

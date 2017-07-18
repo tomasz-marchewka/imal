@@ -109,16 +109,16 @@ public class SURFGenerator {
 
     public void binarize() {
         if (this.descriptors != null && this.points != null && this.descriptors.size() == this.points.size()) {
-            for(int i = 0; i < this.points.size(); i++) {
+            for (int i = 0; i < this.points.size(); i++) {
                 this.binPoints.add(new BinPoint(this.points.get(i), SURFGenerator.binarizePoint(this.descriptors.get(i).getValue())));
             }
         }
     }
 
-    public static List<Integer> binarizePoint(double[] point) {
-        List<Integer> binPoint = new ArrayList<>(point.length);
+    public static int[] binarizePoint(double[] point) {
+        int[] binPoint = new int[point.length];
         for (int i = 0; i < point.length; i++) {
-            binPoint.add(i, point[i] > 0 ? 1 : 0);
+            binPoint[i] = point[i] > 0 ? 1 : 0;
         }
         return binPoint;
     }

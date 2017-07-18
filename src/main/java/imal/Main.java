@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Main {
 
-    public static int NUMBER_OF_POINTS = 150;
+    public static int NUMBER_OF_POINTS = 100;
 
     public static void main(String[] args) {
 //        new Thread(new RunnableTid(2)).start();
@@ -14,17 +14,17 @@ public class Main {
 //        new Thread(new RunnableTid(6)).start();
 //        useTid(1);
 
-//        String file1 = "data/reference_images/I01.bmp";
-//        String file2 = "data/distorted_images/I01_05_1.bmp";
-//
+        String file1 = "data/reference_images/I01.bmp";
+        //String file2 = "data/distorted_images/I01_05_1.bmp";
+
 //        SURFGenerator surf1 = new SURFGenerator(NUMBER_OF_POINTS, file1);
 //        surf1.generate();
-//        //surf.binarize();
+//        surf1.binarize();
 //
 //        SURFGenerator surf2 = new SURFGenerator(NUMBER_OF_POINTS, file2);
 //        surf2.generate();
-//        //surf.binarize();
-//        //BinPoint.printList("surf", RandomMethod.randDescriptors(surf.binPoints, 20));
+//        surf2.binarize();
+//        BinPoint.printList("surf", RandomMethod.randDescriptors(surf1.binPoints, 20));
 //
 //        BRIEFGenerator brief1 = new BRIEFGenerator(surf1.getPoints(), file1);
 //        brief1.generate();
@@ -36,9 +36,11 @@ public class Main {
         //BinPoint.printList("brief", RandomMethod.randDescriptors(brief.binPoints, 100));
 
 
-//        SIFTGenerator sift = new SIFTGenerator(filePath);
-//        sift.generate();
-//        sift.binarize();
+        SIFTGenerator sift = new SIFTGenerator(file1);
+        sift.generate();
+        sift.binarize();
+
+        BinPoint.printList("sift", sift.binPoints);
 
 //        Associate associate = new Associate();
 //
@@ -81,7 +83,7 @@ public class Main {
 //        Painter painter = new Painter(file1, file2);
 //        painter.paint(association, brief2.binPoints);
 
-        useClonalg();
+        // useClonalg();
 
     }
 
@@ -120,8 +122,8 @@ public class Main {
 
                 associate.findAssociate(briefReference.binPoints, briefDistorted.binPoints);
 
-                //System.out.println("i: " + i + ", j: " + j + " - " + distortedImagePath);
-                //associate.printResult();
+                System.out.println("i: " + i + ", j: " + j + " - " + distortedImagePath);
+                associate.printResult();
                 sumPrecision += associate.precision;
                 sumRecall += associate.recall;
                 sumF1 += associate.f1;
@@ -152,7 +154,7 @@ public class Main {
 
         Associate associate = new Associate();
 
-        ClonalgMethod clonalg = new ClonalgMethod(briefReference.binPoints.get(0).descriptors.size(), 250, (indices) -> {
+        ClonalgMethod clonalg = new ClonalgMethod(briefReference.binPoints.get(0).descriptors.length, 350, (indices) -> {
             List<BinPoint> refPoints = BinPoint.applyIndices(indices, briefReference.binPoints);
             List<BinPoint> destPoints = BinPoint.applyIndices(indices, briefDistorted.binPoints);
             associate.findAssociate(refPoints, destPoints);

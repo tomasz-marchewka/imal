@@ -1,5 +1,7 @@
 package imal;
 
+import com.google.common.primitives.Ints;
+
 import java.util.*;
 
 /**
@@ -12,10 +14,10 @@ public class RandomMethod {
         if (listSize <= numbersOfIndices) {
             return points;
         }
-        Set<Integer> randomIndices = randIndices(points.get(0).descriptors.size(), numbersOfIndices);
+        Set<Integer> randomIndices = randIndices(points.get(0).descriptors.length, numbersOfIndices);
         List<BinPoint> newPoints = new ArrayList<>();
         for (BinPoint point : points) {
-            newPoints.add(point.getGivenIndices(randomIndices));
+            newPoints.add(point.getGivenIndices(Ints.toArray(randomIndices)));
         }
         return newPoints;
 

@@ -91,8 +91,8 @@ public class BRIEFGenerator {
 
     public void binarize() {
         if (this.descriptors != null && this.points != null && this.descriptors.size() == this.points.size()) {
-            for(int i = 0; i < this.points.size(); i++) {
-                this.binPoints.add(new BinPoint(this.points.get(i), this.descriptors.get(i)));
+            for (int i = 0; i < this.points.size(); i++) {
+                this.binPoints.add(new BinPoint(this.points.get(i), Ints.toArray(this.descriptors.get(i))));
             }
         }
     }
